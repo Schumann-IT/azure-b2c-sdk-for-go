@@ -1,0 +1,12 @@
+- name: test
+  tenant: test.onmicrosoft.com
+  settings:
+    Tenant: test.onmicrosoft.com
+  keySets:
+    - name: B2C_1A_TokenSigningKeyContainer
+      use: sig
+    - name: B2C_1A_TokenEncryptionKeyContainer
+      use: enc
+    - name: B2C_1A_SamlIdpCert
+      cert: mycert
+      password: mypassword

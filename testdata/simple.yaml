@@ -1,0 +1,4 @@
+- name: simple
+  tenant: simple.onmicrosoft.com
+  settings:
+    Tenant: "simple.onmicrosoft.com"

@@ -1,0 +1,30 @@
+- name: test1
+  tenant: test1.onmicrosoft.com
+  isProduction: true
+  settings:
+    foo: "bar"
+
+- name: test2
+  tenant: test2.onmicrosoft.com
+  keySets:
+    - name: B2C_1A_TokenSigningKeyContainer
+      use: sig
+    - name: B2C_1A_TokenEncryptionKeyContainer
+      use: enc
+    - name: B2C_1A_SamlIdpCert
+      cert: mycert
+      password: mypassword
+
+- name: test3
+  tenant: test3.onmicrosoft.com
+  isProduction: true
+  applications:
+    - name: KeycloakYaml
+      objectId: aaaaaaaa-cccc-dddd-eeee-ffffffffffff
+      patch:
+        api:
+          acceptMappedClaims: null
+          requestedAccessTokenVersion: 2
+        isFallbackPublicClient: null
+        optionalClaims: null
+
