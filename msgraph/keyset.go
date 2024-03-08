@@ -9,6 +9,7 @@ import (
 	"github.com/schumann-it/azure-b2c-sdk-for-go/keyset"
 )
 
+// SyncKeySets synchronizes the given key sets with the service's key sets. It checks if each key set in the input exists in the service's key sets. If a key set does not exist, it creates
 func (s *ServiceClient) SyncKeySets(ks []*keyset.KeySet) error {
 	r, err := s.getKeySets()
 	if err != nil {
@@ -27,14 +28,39 @@ func (s *ServiceClient) SyncKeySets(ks []*keyset.KeySet) error {
 	return nil
 }
 
+// DeleteKeySet deletes a key set with the given ID.
+// It sends a DELETE request to the service's TrustFramework KeySets endpoint using the specified ID.
+// The context.Background() function is used to create a new background context.
+// The function returns an error if the DELETE request fails.
 func (s *ServiceClient) DeleteKeySet(id string) error {
 	return s.gc.TrustFramework().KeySets().ByTrustFrameworkKeySetId(id).Delete(context.Background(), nil)
 }
 
+// GetKeySet retrieves a trust framework key set from the service by its ID.
+// It returns the trust framework key set object and an error, if any.
+// Example usage:
+//
+//	keySet, err := service.GetKeySet("keySetId")
+//	if err != nil {
+//		// handle error
+//	}
+//	// use keySet
+//
+// Parameters:
+//
+//	id - the ID of the trust framework key set to retrieve
+//
+// Returns:
+//
+//	The trust framework key set object and an error, if any.
 func (s *ServiceClient) GetKeySet(id string) (models.TrustFrameworkKeySetable, error) {
 	return s.gc.TrustFramework().KeySets().ByTrustFrameworkKeySetId(id).Get(context.Background(), nil)
 }
 
+// CreateKeySet creates a new key set with the given name. It creates a TrustFrameworkKeySet
+// object using the provided name, and then makes a POST request to the TrustFramework KeySets
+// endpoint of the ServiceClient with the new key set object. The method returns a
+// TrustFrameworkKeySetable object and an error if any.
 func (s *ServiceClient) CreateKeySet(name string) (models.TrustFrameworkKeySetable, error) {
 	ks := models.NewTrustFrameworkKeySet()
 	ks.SetId(to.StringPtr(name))
@@ -42,6 +68,7 @@ func (s *ServiceClient) CreateKeySet(name string) (models.TrustFrameworkKeySetab
 	return s.gc.TrustFramework().KeySets().Post(context.Background(), ks, nil)
 }
 
+// CreateKey creates a key in the service's trust framework. It takes a key set as input and sends a POST request to the service's key sets endpoint. If the request is successful, it
 func (s *ServiceClient) CreateKey(ks *keyset.KeySet) (models.TrustFrameworkKeySetable, error) {
 	r, err := s.gc.TrustFramework().KeySets().Post(context.Background(), ks.Get(), nil)
 	if err != nil {
@@ -73,10 +100,12 @@ func (s *ServiceClient) CreateKey(ks *keyset.KeySet) (models.TrustFrameworkKeySe
 	return r, err
 }
 
+// getKeySets retrieves the collection of key sets from the service.
 func (s *ServiceClient) getKeySets() (models.TrustFrameworkKeySetCollectionResponseable, error) {
 	return s.gc.TrustFramework().KeySets().Get(context.Background(), nil)
 }
 
+// GenerateKey generates a new key with the specified settings. It takes in the key set ID, use, and key type as parameters. It creates a request body with the specified use and key
 func (s *ServiceClient) GenerateKey(ksId, use, kty string) (models.TrustFrameworkKeyable, error) {
 	r := trustframework.NewKeySetsItemGenerateKeyPostRequestBody()
 	r.SetUse(to.StringPtr(use))
@@ -87,6 +116,7 @@ func (s *ServiceClient) GenerateKey(ksId, use, kty string) (models.TrustFramewor
 	return key, err
 }
 
+// UploadPkcs12 uploads a PKCS12 certificate to the service for a specific trust framework key set identified by `ksId`. It takes the PKCS12 certificate and password as input. It creates
 func (s *ServiceClient) UploadPkcs12(ksId, certificate, password string) (models.TrustFrameworkKeyable, error) {
 	b := trustframework.NewKeySetsItemUploadPkcs12PostRequestBody()
 	b.SetKey(to.StringPtr(certificate))
@@ -96,6 +126,9 @@ func (s *ServiceClient) UploadPkcs12(ksId, certificate, password string) (models
 	return key, err
 }
 
+// keySetExists checks if the given key set exists in the TrustFrameworkKeySetCollectionResponseable.
+// It iterates through each key set in the collection and compares the ID of the given key set with the ID of each key set in the collection.
+// If a key set with the same ID is found, it returns true. Otherwise, it returns false.
 func (s *ServiceClient) keySetExists(c models.TrustFrameworkKeySetCollectionResponseable, ks *keyset.KeySet) bool {
 	for _, ek := range c.GetValue() {
 		if to.String(ks.Get().GetId()) == to.String(ek.GetId()) {
