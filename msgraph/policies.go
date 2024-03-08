@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"io"
 	"net/http"
 	"sync"
 
@@ -69,45 +68,32 @@ func (s *ServiceClient) UploadPolicies(policies []policy.Policy) error {
 func (s *ServiceClient) uploadPolicy(p policy.Policy, wg *sync.WaitGroup, errChan chan error) {
 	defer wg.Done()
 
-	hc := &http.Client{}
-	defer hc.CloseIdleConnections()
-
-	ep := fmt.Sprintf("https://graph.microsoft.com/beta/trustFramework/policies/%s/$value", p.Id())
-	req, err := http.NewRequest(http.MethodPut, ep, bytes.NewBuffer(p.Byte()))
+	req, err := s.uploadPolicyRequest(p.Id(), p.Byte())
 	if err != nil {
 		errChan <- fmt.Errorf("failed to upload policy %s: %s", p.Id(), err)
 		return
 	}
 
-	t, err := s.Token()
-	if err != nil {
-		errChan <- fmt.Errorf("failed to upload policy %s: %s", p.Id(), err)
-	}
-	req.Header.Set("Content-Type", "application/xml; charset=utf-8")
-	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", t.Token))
-	resp, err := hc.Do(req)
-
+	err = s.DoRequest(req)
 	if err != nil {
 		errChan <- fmt.Errorf("failed to upload policy %s: %s", p.Id(), err)
 		return
-	}
-	defer resp.Body.Close()
-
-	body, err := io.ReadAll(resp.Body)
-
-	if err != nil {
-		errChan <- err
-		return
-	}
-
-	if resp.StatusCode >= 400 {
-		if err != nil {
-			errChan <- fmt.Errorf("failed to upload policy %s: %s", p.Id(), string(body))
-			return
-		}
 	}
 
 	log.Debugf(fmt.Sprintf("sucessfully uploaded policy %s", p.Id()))
 
 	errChan <- nil
+}
+
+func (s *ServiceClient) uploadPolicyRequest(id string, body []byte) (*http.Request, error) {
+	ep := fmt.Sprintf("https://graph.microsoft.com/beta/trustFramework/policies/%s/$value", id)
+	req, err := http.NewRequest(http.MethodPut, ep, bytes.NewBuffer(body))
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Set("Content-Type", "application/xml; charset=utf-8")
+	err = s.Authorize(req)
+
+	return req, err
 }

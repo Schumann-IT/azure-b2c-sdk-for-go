@@ -36,7 +36,7 @@ func (s *Service) DeleteKeySets(en string) error {
 
 	var errs error
 	for _, set := range s.createKeySets(e) {
-		err := c.DeleteKeySet(set)
+		err := c.DeleteKeySet(to.String(set.Get().GetId()))
 		if err != nil {
 			errs = multierror.Append(errs, fmt.Errorf("failed to delete key set %s: %s", to.String(set.Get().GetId()), err))
 		}
