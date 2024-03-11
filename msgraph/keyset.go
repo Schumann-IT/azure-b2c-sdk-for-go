@@ -68,62 +68,50 @@ func (s *ServiceClient) CreateKeySet(name string) (models.TrustFrameworkKeySetab
 	return s.gc.TrustFramework().KeySets().Post(context.Background(), ks, nil)
 }
 
-// CreateKey creates a key in the service's trust framework. It takes a key set as input and sends a POST request to the service's key sets endpoint. If the request is successful, it
-func (s *ServiceClient) CreateKey(ks *keyset.KeySet) (models.TrustFrameworkKeySetable, error) {
-	r, err := s.gc.TrustFramework().KeySets().Post(context.Background(), ks.Get(), nil)
-	if err != nil {
-		return nil, err
-	}
-
-	if to.String(r.GetId()) != to.String(ks.Get().GetId()) {
-		log.Warningf("id changed while creating %s: new id is %s", to.String(ks.Get().GetId()), to.String(r.GetId()))
-		ks.Get().SetId(r.GetId())
-	}
-
-	var key models.TrustFrameworkKeyable
-	if ks.Key() != nil {
-		key, err = s.GenerateKey(to.String(ks.Get().GetId()), to.String(ks.Key().GetUse()), to.String(ks.Key().GetKty()))
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	if ks.Certificate() != nil {
-		key, err = s.UploadPkcs12(to.String(ks.Get().GetId()), ks.Certificate().Key, ks.Certificate().Password)
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	r.SetKeys([]models.TrustFrameworkKeyable{key})
-
-	return r, err
-}
-
 // getKeySets retrieves the collection of key sets from the service.
 func (s *ServiceClient) getKeySets() (models.TrustFrameworkKeySetCollectionResponseable, error) {
 	return s.gc.TrustFramework().KeySets().Get(context.Background(), nil)
 }
 
 // GenerateKey generates a new key with the specified settings. It takes in the key set ID, use, and key type as parameters. It creates a request body with the specified use and key
-func (s *ServiceClient) GenerateKey(ksId, use, kty string) (models.TrustFrameworkKeyable, error) {
+func (s *ServiceClient) GenerateKey(keySetNameOrId, use, kty string) (models.TrustFrameworkKeySetable, error) {
+	ks, err := s.CreateKeySet(keySetNameOrId)
+	if err != nil {
+		return nil, err
+	}
+
 	r := trustframework.NewKeySetsItemGenerateKeyPostRequestBody()
 	r.SetUse(to.StringPtr(use))
 	r.SetKty(to.StringPtr(kty))
 
-	key, err := s.gc.TrustFramework().KeySets().ByTrustFrameworkKeySetId(ksId).GenerateKey().Post(context.Background(), r, nil)
+	key, err := s.gc.TrustFramework().KeySets().ByTrustFrameworkKeySetId(to.String(ks.GetId())).GenerateKey().Post(context.Background(), r, nil)
+	if err != nil {
+		return nil, err
+	}
 
-	return key, err
+	ks.SetKeys([]models.TrustFrameworkKeyable{key})
+
+	return ks, err
 }
 
 // UploadPkcs12 uploads a PKCS12 certificate to the service for a specific trust framework key set identified by `ksId`. It takes the PKCS12 certificate and password as input. It creates
-func (s *ServiceClient) UploadPkcs12(ksId, certificate, password string) (models.TrustFrameworkKeyable, error) {
+func (s *ServiceClient) UploadPkcs12(keySetNameOrId, certificate, password string) (models.TrustFrameworkKeySetable, error) {
+	ks, err := s.CreateKeySet(keySetNameOrId)
+	if err != nil {
+		return nil, err
+	}
+
 	b := trustframework.NewKeySetsItemUploadPkcs12PostRequestBody()
 	b.SetKey(to.StringPtr(certificate))
 	b.SetPassword(to.StringPtr(password))
-	key, err := s.gc.TrustFramework().KeySets().ByTrustFrameworkKeySetId(ksId).UploadPkcs12().Post(context.Background(), b, nil)
+	key, err := s.gc.TrustFramework().KeySets().ByTrustFrameworkKeySetId(to.String(ks.GetId())).UploadPkcs12().Post(context.Background(), b, nil)
+	if err != nil {
+		return nil, err
+	}
 
-	return key, err
+	ks.SetKeys([]models.TrustFrameworkKeyable{key})
+
+	return ks, err
 }
 
 // keySetExists checks if the given key set exists in the TrustFrameworkKeySetCollectionResponseable.

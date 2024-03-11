@@ -20,18 +20,18 @@ func (s *ServiceClient) GetApplication(id string) (models.Applicationable, error
 // If the patching process encounters an error, it returns an error with a descriptive message.
 // If the request to patch the application fails, it returns an error with a descriptive message.
 // If the patching process is successful, it returns nil.
-func (s *ServiceClient) PatchApplication(id string, patch map[string]interface{}) error {
+func (s *ServiceClient) PatchApplication(id string, patch map[string]interface{}) (models.Applicationable, error) {
 	req, err := s.applicationPatchRequest(id, patch)
 	if err != nil {
-		return fmt.Errorf("failed to patch application %s: %s", id, err)
+		return nil, fmt.Errorf("failed to patch application %s: %s", id, err)
 	}
 
 	err = s.DoRequest(req)
 	if err != nil {
-		return fmt.Errorf("failed to patch application %s: %s", id, err)
+		return nil, fmt.Errorf("failed to patch application %s: %s", id, err)
 	}
 
-	return nil
+	return s.GetApplication(id)
 }
 
 // applicationPatchRequest sends a PATCH request to update the application with the specified ID in the service.
