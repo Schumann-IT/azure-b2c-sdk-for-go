@@ -1,0 +1,10 @@
+- name: test1
+  isProduction: true
+  settings:
+    foo: "bar"
+
+- name: test2
+
+- name: test3
+  isProduction: true
+
