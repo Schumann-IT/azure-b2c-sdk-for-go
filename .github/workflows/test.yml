@@ -2,13 +2,7 @@ name: Tests
 
 on:
   pull_request:
-    paths-ignore:
-      - 'README.md'
-      - 'LICENSE'
   push:
-    paths-ignore:
-      - 'README.md'
-      - 'LICENSE'
     branches:
       - main
 
@@ -51,4 +45,18 @@ jobs:
         uses: tj-actions/coverage-badge-go@v2.4.2
         with:
           filename: coverage.out
-      - run: cat README.md
+      - uses: tj-actions/verify-changed-files@v16
+        id: verify-changed-files
+        with:
+          files: README.md
+      - if: steps.verify-changed-files.outputs.files_changed == 'true'
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add README.md
+          git commit -m "chore: Updated coverage badge."
+      - if: steps.verify-changed-files.outputs.files_changed == 'true'
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ github.token }}
+          branch: ${{ github.head_ref }}
