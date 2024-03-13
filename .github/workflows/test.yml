@@ -26,6 +26,9 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@9bb56186c3b09b4f86b1c65136769dd318469633 # v4.1.2
+        with:
+          ref: ${{ github.head_ref }}
+          fetch-depth: 0
       - uses: actions/setup-go@0c52d547c9bc32b1aa3301fd7a9cb496313a4491 # v5.0.0
         with:
           go-version-file: 'go.mod'
@@ -49,8 +52,8 @@ jobs:
           files: README.md
       - if: steps.verify-changed-files.outputs.files_changed == 'true'
         run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
           git add README.md
           git commit -m "chore: Updated coverage badge."
       - if: steps.verify-changed-files.outputs.files_changed == 'true'
