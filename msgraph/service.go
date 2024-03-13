@@ -75,7 +75,7 @@ func (s *ServiceClient) Token() (*azcore.AccessToken, error) {
 			Scopes: s.s,
 		})
 		if err != nil {
-			return nil, fmt.Errorf("could not get token: %s", err.Error())
+			return nil, fmt.Errorf("could not get token: %w", err)
 		}
 
 		s.t = &t

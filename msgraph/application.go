@@ -23,12 +23,12 @@ func (s *ServiceClient) GetApplication(id string) (models.Applicationable, error
 func (s *ServiceClient) PatchApplication(id string, patch map[string]interface{}) (models.Applicationable, error) {
 	req, err := s.applicationPatchRequest(id, patch)
 	if err != nil {
-		return nil, fmt.Errorf("failed to patch application %s: %s", id, err)
+		return nil, fmt.Errorf("failed to patch application %s: %w", id, err)
 	}
 
 	err = s.DoRequest(req)
 	if err != nil {
-		return nil, fmt.Errorf("failed to patch application %s: %s", id, err)
+		return nil, fmt.Errorf("failed to patch application %s: %w", id, err)
 	}
 
 	return s.GetApplication(id)

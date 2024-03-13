@@ -25,3 +25,16 @@ linters:
     - unparam
     - unused
     - vet
+    - goconst
+    - gochecknoinits
+    - dupl
+    - asasalint
+    - bodyclose
+    - contextcheck
+    - cyclop
+    - errchkjson
+    - exportloopref
+    - errorlint
+    - exhaustive
+    - funlen
+    - zerologlint

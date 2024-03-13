@@ -33,15 +33,15 @@ func (s *Service) BuildPolicies(en string) error {
 	b := policy.NewBuilder()
 	err = b.Read(s.sd)
 	if err != nil {
-		return fmt.Errorf("failed to build %s: read from %s failed: %s", en, s.sd, err)
+		return fmt.Errorf("failed to build %s: read from %s failed: %w", en, s.sd, err)
 	}
 	err = b.Process(e.Settings)
 	if err != nil {
-		return fmt.Errorf("failed to process %s: %s", en, err)
+		return fmt.Errorf("failed to process %s: %w", en, err)
 	}
 	err = b.Write(path.Join(s.td, e.Name))
 	if err != nil {
-		return fmt.Errorf("failed to write to %s/%s: %s", s.td, e.Name, err)
+		return fmt.Errorf("failed to write to %s/%s: %w", s.td, e.Name, err)
 	}
 
 	return nil
@@ -57,7 +57,7 @@ func (s *Service) BuildPolicies(en string) error {
 func (s *Service) ListPolicies() error {
 	err := s.createGraphClient()
 	if err != nil {
-		return fmt.Errorf("failed to create graph client: %s", err)
+		return fmt.Errorf("failed to create graph client: %w", err)
 	}
 
 	ps, err := s.gs.GetPolicies()
@@ -83,7 +83,7 @@ func (s *Service) ListPolicies() error {
 func (s *Service) DeletePolicies() error {
 	err := s.createGraphClient()
 	if err != nil {
-		return fmt.Errorf("failed to create graph client: %s", err)
+		return fmt.Errorf("failed to create graph client: %w", err)
 	}
 
 	return s.gs.DeletePolicies()
@@ -106,7 +106,7 @@ func (s *Service) DeployPolicies(en string) error {
 
 	err = s.createGraphClient()
 	if err != nil {
-		return fmt.Errorf("failed to create graph client: %s", err)
+		return fmt.Errorf("failed to create graph client: %w", err)
 	}
 
 	bs, err := s.batch(e)
@@ -118,7 +118,7 @@ func (s *Service) DeployPolicies(en string) error {
 	for i, b := range bs {
 		err = s.gs.UploadPolicies(b)
 		if err != nil {
-			errs = multierror.Append(errs, fmt.Errorf("failed to upload batch %d from %s: %s", i, en, err))
+			errs = multierror.Append(errs, fmt.Errorf("failed to upload batch %d from %s: %w", i, en, err))
 		}
 	}
 
@@ -141,7 +141,7 @@ func (s *Service) batch(e *environment.Config) ([][]policy.Policy, error) {
 	td := path.Join(s.td, e.Name)
 	err := t.Read(td)
 	if err != nil {
-		return nil, fmt.Errorf("failed to read from %s, did you run build?: %s", td, err)
+		return nil, fmt.Errorf("failed to read from %s, did you run build?: %w", td, err)
 	}
 
 	return t.Batches(), nil

@@ -18,7 +18,7 @@ import (
 func (s *ServiceClient) GetPolicies() ([]string, error) {
 	d, err := s.gc.TrustFramework().Policies().Get(context.Background(), nil)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get policies: %s", err)
+		return nil, fmt.Errorf("failed to get policies: %w", err)
 	}
 
 	var r []string
@@ -45,7 +45,7 @@ func (s *ServiceClient) DeletePolicies() error {
 	for _, id := range ps {
 		err = s.gc.TrustFramework().Policies().ByTrustFrameworkPolicyId(id).Delete(context.Background(), nil)
 		if err != nil {
-			errs = multierror.Append(errs, fmt.Errorf("failed to delete policy %s: %s", id, err))
+			errs = multierror.Append(errs, fmt.Errorf("failed to delete policy %s: %w", id, err))
 			continue
 		}
 		log.Debugf(fmt.Sprintf("successfully deleted policy %s", id))
@@ -96,13 +96,13 @@ func (s *ServiceClient) uploadPolicy(p policy.Policy, wg *sync.WaitGroup, errCha
 
 	req, err := s.uploadPolicyRequest(p.Id(), p.Byte())
 	if err != nil {
-		errChan <- fmt.Errorf("failed to upload policy %s: %s", p.Id(), err)
+		errChan <- fmt.Errorf("failed to upload policy %s: %w", p.Id(), err)
 		return
 	}
 
 	err = s.DoRequest(req)
 	if err != nil {
-		errChan <- fmt.Errorf("failed to upload policy %s: %s", p.Id(), err)
+		errChan <- fmt.Errorf("failed to upload policy %s: %w", p.Id(), err)
 		return
 	}
 
