@@ -12,6 +12,8 @@ on:
     paths-ignore:
       - 'README.md'
       - 'LICENSE'
+    branches:
+      - main
 
 permissions:
   contents: read
