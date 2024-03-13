@@ -7,13 +7,15 @@ on:
   pull_request:
     paths-ignore:
       - 'README.md'
+      - 'LICENSE'
   push:
     paths-ignore:
       - 'README.md'
+      - 'LICENSE'
 
-# Testing only needs permissions to read the repository contents.
 permissions:
   contents: read
+  checks: write
 
 jobs:
   golangci:
