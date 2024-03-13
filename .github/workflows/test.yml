@@ -34,7 +34,8 @@ jobs:
           go-version-file: 'go.mod'
           cache: true
       - run: go mod download
-      - env:
+      - name: run tests
+        env:
           TEST_ACC: "1"
           B2C_ARM_TENANT_ID: ${{ secrets.B2C_ARM_TENANT_ID }}
           B2C_ARM_CLIENT_ID: ${{ secrets.B2C_ARM_CLIENT_ID }}
@@ -42,15 +43,10 @@ jobs:
         run: |
           go test -v ./... -covermode=count -coverprofile=coverage.out
           go tool cover -func=coverage.out -o=coverage.out
-      - name: Go Coverage Badge
-        uses: tj-actions/coverage-badge-go@v2.4.2
+      - uses: tj-actions/coverage-badge-go@v2.4.2
         with:
           filename: coverage.out
-      - uses: tj-actions/verify-changed-files@v16
-        id: verify-changed-files
+      - uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          files: README.md
-      - if: steps.verify-changed-files.outputs.files_changed == 'true'
-        uses: stefanzweifel/git-auto-commit-action@v5
-        with:
-          commit_message: "chore: Updated coverage badge."
+          commit_message: "chore: update coverage badge"
+          file_pattern: README.md
