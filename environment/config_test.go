@@ -18,14 +18,13 @@ func Test_NewConfigFromFile(t *testing.T) {
 }
 
 func Test_NewConfig(t *testing.T) {
-	s := "name: test\ntenant: test.onmicrosoft.com\n"
+	s := "name: test"
 	c, err := NewConfig([]byte(s))
 	if err != nil {
 		t.Fatalf("unexpected error: %s", err)
 	}
 
 	assert.Equal(t, "test", c.Name)
-	assert.Equal(t, "test.onmicrosoft.com", c.Tenant)
 }
 
 func Test_InvalidConfig(t *testing.T) {

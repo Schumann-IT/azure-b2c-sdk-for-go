@@ -50,8 +50,7 @@ func testHelperCountFiles(t *testing.T, p string) int {
 
 func Test_NewService(t *testing.T) {
 	expected := environment.Config{
-		Name:   "simple",
-		Tenant: "simple.onmicrosoft.com",
+		Name: "simple",
 		Settings: map[string]string{
 			"Tenant": "simple.onmicrosoft.com",
 		},

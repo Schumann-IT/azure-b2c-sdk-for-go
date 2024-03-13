@@ -2,9 +2,12 @@ package b2c
 
 import (
 	"fmt"
+	"os"
 	"path/filepath"
 
 	"github.com/Azure/azure-sdk-for-go/sdk/azidentity"
+	"github.com/hashicorp/go-multierror"
+	"github.com/microsoftgraph/msgraph-beta-sdk-go/models"
 	"github.com/schumann-it/azure-b2c-sdk-for-go/environment"
 	"github.com/schumann-it/azure-b2c-sdk-for-go/msgraph"
 )
@@ -14,6 +17,8 @@ type Service struct {
 	es []environment.Config
 	sd string
 	td string
+	gs *msgraph.ServiceClient
+	ti models.TenantInformationable
 }
 
 // NewService creates a new instance of Service by loading the environment configuration from the provided file path
@@ -54,13 +59,48 @@ func (s *Service) findConfig(n string) (*environment.Config, error) {
 	return nil, fmt.Errorf("environment %s not found", n)
 }
 
-// createGraphClient creates a new instance of the Microsoft Graph service client using the provided environment configuration.
+// createGraphClient creates a new instance of the Microsoft Graph service client using environment variable configuration.
 // It returns a pointer to the ServiceClient instance and an error if the creation fails.
-func (s *Service) createGraphClient(e *environment.Config) (*msgraph.ServiceClient, error) {
-	cred, err := azidentity.NewEnvironmentCredential(nil)
-	if err != nil {
-		return nil, err
+func (s *Service) createGraphClient() error {
+	if s.gs != nil {
+		return nil
 	}
 
-	return msgraph.NewClientWithCredential(cred)
+	var errs error
+
+	tid := os.Getenv("B2C_ARM_TENANT_ID")
+	if tid == "" {
+		errs = multierror.Append(errs, fmt.Errorf("B2C_ARM_TENANT_ID must be set via environment variable"))
+	}
+	cid := os.Getenv("B2C_ARM_CLIENT_ID")
+	if cid == "" {
+		errs = multierror.Append(errs, fmt.Errorf("B2C_ARM_CLIENT_ID must be set via environment variable"))
+	}
+	cs := os.Getenv("B2C_ARM_CLIENT_SECRET")
+	if cs == "" {
+		errs = multierror.Append(errs, fmt.Errorf("B2C_ARM_CLIENT_SECRET must be set via environment variable"))
+	}
+
+	if errs != nil {
+		return errs
+	}
+
+	cred, err := azidentity.NewClientSecretCredential(tid, cid, cs, nil)
+	if err != nil {
+		return err
+	}
+
+	c, err := msgraph.NewClientWithCredential(cred)
+	if err != nil {
+		return err
+	}
+	s.gs = c
+
+	ti, err := s.gs.GetTenantInformation(tid)
+	if err != nil {
+		return err
+	}
+	s.ti = ti
+
+	return nil
 }

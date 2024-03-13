@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"path"
 
+	"github.com/Azure/go-autorest/autorest/to"
 	"github.com/hashicorp/go-multierror"
 	"github.com/schumann-it/azure-b2c-sdk-for-go/environment"
 	"github.com/schumann-it/azure-b2c-sdk-for-go/policy"
@@ -21,6 +22,12 @@ func (s *Service) BuildPolicies(en string) error {
 	e, err := s.findConfig(en)
 	if err != nil {
 		return err
+	}
+
+	err = s.createGraphClient()
+	if err == nil && s.ti != nil {
+		// override tenant id from tenant information
+		e.Settings["Tenant"] = to.String(s.ti.GetDefaultDomainName())
 	}
 
 	b := policy.NewBuilder()
@@ -47,18 +54,13 @@ func (s *Service) BuildPolicies(en string) error {
 //
 // Returns:
 // - error: an error if any occurred during the process
-func (s *Service) ListPolicies(en string) error {
-	e, err := s.findConfig(en)
-	if err != nil {
-		return err
-	}
-
-	c, err := s.createGraphClient(e)
+func (s *Service) ListPolicies() error {
+	err := s.createGraphClient()
 	if err != nil {
 		return fmt.Errorf("failed to create graph client: %s", err)
 	}
 
-	ps, err := c.GetPolicies()
+	ps, err := s.gs.GetPolicies()
 
 	for _, p := range ps {
 		log.Infof("found policy %s", p)
@@ -75,18 +77,13 @@ func (s *Service) ListPolicies(en string) error {
 //
 // Returns:
 //   - error: an error if any occurred during the process
-func (s *Service) DeletePolicies(en string) error {
-	e, err := s.findConfig(en)
-	if err != nil {
-		return err
-	}
-
-	c, err := s.createGraphClient(e)
+func (s *Service) DeletePolicies() error {
+	err := s.createGraphClient()
 	if err != nil {
 		return fmt.Errorf("failed to create graph client: %s", err)
 	}
 
-	return c.DeletePolicies()
+	return s.gs.DeletePolicies()
 }
 
 // DeployPolicies deploys policies for a given environment.
@@ -104,7 +101,7 @@ func (s *Service) DeployPolicies(en string) error {
 		return err
 	}
 
-	c, err := s.createGraphClient(e)
+	err = s.createGraphClient()
 	if err != nil {
 		return fmt.Errorf("failed to create graph client: %s", err)
 	}
@@ -116,7 +113,7 @@ func (s *Service) DeployPolicies(en string) error {
 
 	var errs error
 	for i, b := range bs {
-		err = c.UploadPolicies(b)
+		err = s.gs.UploadPolicies(b)
 		if err != nil {
 			errs = multierror.Append(errs, fmt.Errorf("failed to upload batch %d from %s: %s", i, en, err))
 		}

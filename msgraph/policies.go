@@ -64,14 +64,15 @@ func (s *ServiceClient) UploadPolicies(policies []policy.Policy) error {
 	var wg sync.WaitGroup
 	wg.Add(len(policies))
 
-	errChan := make(chan error, len(policies))
+	res := make(chan error, len(policies))
 	for _, p := range policies {
-		go s.uploadPolicy(p, &wg, errChan)
+		go s.uploadPolicy(p, &wg, res)
 	}
 	wg.Wait()
+	close(res)
 
 	var errs error
-	for err := range errChan {
+	for err := range res {
 		if err != nil {
 			errs = multierror.Append(errs, err)
 		}
