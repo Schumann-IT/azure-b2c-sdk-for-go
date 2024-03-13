@@ -29,7 +29,7 @@ func (s *ServiceClient) GetKeySet(id string) (models.TrustFrameworkKeySetable, e
 	return s.gc.TrustFramework().KeySets().ByTrustFrameworkKeySetId(id).Get(context.Background(), nil)
 }
 
-// GenerateKey generates a new key with the specified settings. It takes in the key set ID, use, and key type as parameters. It creates a request body with the specified use and key
+// GenerateKey generates a new key with the specified settings. It takes in the key set ID, use, and key type as parameters. It creates a request body with the specified use and key.
 func (s *ServiceClient) GenerateKey(keySetNameOrId, use, kty string) (models.TrustFrameworkKeySetable, error) {
 	ks, err := s.createKeySet(keySetNameOrId)
 	if err != nil {
@@ -50,7 +50,7 @@ func (s *ServiceClient) GenerateKey(keySetNameOrId, use, kty string) (models.Tru
 	return ks, err
 }
 
-// UploadPkcs12 uploads a PKCS12 certificate to the service for a specific trust framework key set identified by `ksId`. It takes the PKCS12 certificate and password as input. It creates
+// UploadPkcs12 uploads a PKCS12 certificate to the service for a specific trust framework key set identified by `ksId`. It takes the PKCS12 certificate and password as input.
 func (s *ServiceClient) UploadPkcs12(keySetNameOrId, certificate, password string) (models.TrustFrameworkKeySetable, error) {
 	ks, err := s.createKeySet(keySetNameOrId)
 	if err != nil {

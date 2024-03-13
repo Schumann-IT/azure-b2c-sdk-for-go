@@ -21,7 +21,7 @@ var (
 func testHelperSetupService(t *testing.T, env string) *Service {
 	_ = os.RemoveAll(testBuildTargetDir)
 
-	r, err := filepath.Abs(testFixturesDir)
+	r, _ := filepath.Abs(testFixturesDir)
 	cp := fmt.Sprintf("%s/%s.yaml", path.Join(testFixturesDir), env)
 	testSourceDir = path.Join(r, testFixturesSourceDir)
 	s, err := NewService(cp, testSourceDir, testBuildTargetDir)

@@ -24,8 +24,8 @@ func SetVariableIdentifierRegexFromString(s string) {
 }
 
 // SetVariableIdentifierRegex uses the given regex to update the
-// - variableRegEx which is used to find and extract variable names from content
-// - variableReplaceFormat which is used to replace variable identifiers with a concrete value
+// - variableRegEx which is used to find and extract variable names from content.
+// - variableReplaceFormat which is used to replace variable identifiers with a concrete value.
 func SetVariableIdentifierRegex(r *regexp.Regexp) {
 	variableRegEx = r
 	setVariableReplaceFormatString()
@@ -34,7 +34,7 @@ func SetVariableIdentifierRegex(r *regexp.Regexp) {
 // setVariableReplaceFormatString extracts delimiters and variable identifier from the variableRegEx
 // and builds a format string that can be used to replace variable identifiers with a concrete value
 //
-// Example: "{Settings:(.+)}" will be transferred to "{Setting:%s}"
+// Example: "{Settings:(.+)}" will be transferred to "{Setting:%s}".
 func setVariableReplaceFormatString() {
 	s := variableRegEx.String()
 	p := strings.Split(s[1:len(s)-1], ":")

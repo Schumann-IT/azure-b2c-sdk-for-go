@@ -28,7 +28,7 @@ func New(f string) (Policy, error) {
 	return p, nil
 }
 
-// XmlPolicy represents the value of a policy in XML, used to be unmarshalled by xml.Unmarshal
+// XmlPolicy represents the value of a policy in XML, used to be unmarshalled by xml.Unmarshal.
 type XmlPolicy struct {
 	PolicyId      string           `xml:"PolicyId,attr"`
 	BaseXmlPolicy []*BaseXmlPolicy `xml:"BasePolicy"`
@@ -36,27 +36,27 @@ type XmlPolicy struct {
 	b             []byte
 }
 
-// Id @see Policy.Id
+// Id @see Policy.Id.
 func (p *XmlPolicy) Id() string {
 	return p.PolicyId
 }
 
-// HasParent @see Policy.HasParent
+// HasParent @see Policy.HasParent.
 func (p *XmlPolicy) HasParent() bool {
 	return len(p.BaseXmlPolicy) > 0
 }
 
-// Parent @see Policy.Parent
+// Parent @see Policy.Parent.
 func (p *XmlPolicy) Parent() Policy {
 	return p.BaseXmlPolicy[0]
 }
 
-// File @see Policy.File
+// File @see Policy.File.
 func (p *XmlPolicy) File() string {
 	return *p.s
 }
 
-// Byte @see Policy.Byte
+// Byte @see Policy.Byte.
 func (p *XmlPolicy) Byte() []byte {
 	return p.b
 }
@@ -70,32 +70,32 @@ type BaseXmlPolicy struct {
 	PolicyId []PolicyId `xml:"PolicyId"`
 }
 
-// Id @see Policy.Id
+// Id @see Policy.Id.
 func (p *BaseXmlPolicy) Id() string {
 	return p.PolicyId[0].Value
 }
 
-// HasParent @see Policy.HasParent
+// HasParent @see Policy.HasParent.
 func (p *BaseXmlPolicy) HasParent() bool {
 	return false
 }
 
-// Parent @see Policy.Parent
+// Parent @see Policy.Parent.
 func (p *BaseXmlPolicy) Parent() Policy {
 	return nil
 }
 
-// File @see Policy.File
+// File @see Policy.File.
 func (p *BaseXmlPolicy) File() string {
 	return ""
 }
 
-// Byte @see Policy.Byte
+// Byte @see Policy.Byte.
 func (p *BaseXmlPolicy) Byte() []byte {
 	return nil
 }
 
-// PolicyId represents the value of a policy ID in XML
+// PolicyId represents the value of a policy ID in XML.
 type PolicyId struct {
 	Value string `xml:",chardata"`
 }

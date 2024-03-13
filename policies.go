@@ -53,7 +53,7 @@ func (s *Service) BuildPolicies(en string) error {
 // - en: the name of the environment
 //
 // Returns:
-// - error: an error if any occurred during the process
+// - error: an error if any occurred during the process.
 func (s *Service) ListPolicies() error {
 	err := s.createGraphClient()
 	if err != nil {
@@ -61,6 +61,9 @@ func (s *Service) ListPolicies() error {
 	}
 
 	ps, err := s.gs.GetPolicies()
+	if err != nil {
+		return err
+	}
 
 	for _, p := range ps {
 		log.Infof("found policy %s", p)

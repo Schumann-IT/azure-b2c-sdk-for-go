@@ -21,10 +21,10 @@ type Config struct {
 // NewConfig is a function that creates a new Config object by unmarshaling the provided byte slice of YAML data.
 // If the unmarshaling process encounters an error, it returns nil and the error. Otherwise, it returns the newly created Config object and nil.
 // The Config struct has the following fields:
-// - Name: a string field representing the name of the configuration (yaml:"name")
-// - Tenant: a string field representing the tenant of the configuration (yaml:"tenant")
-// - IsProduction: a boolean field indicating whether the configuration is for production (yaml:"isProduction")
-// - Settings: a map of string key-value pairs representing additional settings (yaml:"settings,omitempty")
+// - Name: a string field representing the name of the configuration (yaml:"name").
+// - Tenant: a string field representing the tenant of the configuration (yaml:"tenant").
+// - IsProduction: a boolean field indicating whether the configuration is for production (yaml:"isProduction").
+// - Settings: a map of string key-value pairs representing additional settings (yaml:"settings,omitempty").
 func NewConfig(b []byte) (*Config, error) {
 	c := &Config{}
 	err := yaml.Unmarshal(b, c)

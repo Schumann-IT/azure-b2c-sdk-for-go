@@ -64,7 +64,7 @@ func (c *Raw) ReplaceVariables(vs map[string]string, f string) error {
 // The found variables are stored in a slice without duplication.
 //
 // Returns:
-// - cm: a slice containing all unique variables found in the Raw
+// - cm: a slice containing all unique variables found in the Raw.
 func (c *Raw) ExtractVariables() []string {
 	m := variableRegEx.FindAllStringSubmatch(c.String(), -1)
 	var cm []string

@@ -18,7 +18,7 @@ type Builder struct {
 	p content.Processed
 }
 
-// NewBuilder creates a new instance of Builder and initializes it with empty File and Processed contents
+// NewBuilder creates a new instance of Builder and initializes it with empty File and Processed contents.
 func NewBuilder() *Builder {
 	b := &Builder{}
 	b.Reset()
@@ -26,7 +26,7 @@ func NewBuilder() *Builder {
 	return b
 }
 
-// Reset sets the Builder instance back to an initial state, with empty source root and empty content fields
+// Reset sets the Builder instance back to an initial state, with empty source root and empty content fields.
 func (b *Builder) Reset() {
 	b.s = content.Source{}
 	b.p = content.Processed{}

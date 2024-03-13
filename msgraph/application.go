@@ -42,6 +42,10 @@ func (s *ServiceClient) PatchApplication(id string, patch map[string]interface{}
 // If an error occurs during the construction or authorization of the request, the method returns nil for the request and the error.
 func (s *ServiceClient) applicationPatchRequest(id string, patch map[string]interface{}) (*http.Request, error) {
 	b, err := json.Marshal(patch)
+	if err != nil {
+		return nil, err
+	}
+
 	ep := fmt.Sprintf("https://graph.microsoft.com/beta/applications/%s", id)
 	req, err := http.NewRequest(http.MethodPatch, ep, bytes.NewBuffer(b))
 	if err != nil {

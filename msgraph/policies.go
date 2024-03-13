@@ -48,7 +48,7 @@ func (s *ServiceClient) DeletePolicies() error {
 			errs = multierror.Append(errs, fmt.Errorf("failed to delete policy %s: %s", id, err))
 			continue
 		}
-		log.Debugf(fmt.Sprintf("sucessfully deleted policy %s", id))
+		log.Debugf(fmt.Sprintf("successfully deleted policy %s", id))
 	}
 
 	return nil
@@ -106,7 +106,7 @@ func (s *ServiceClient) uploadPolicy(p policy.Policy, wg *sync.WaitGroup, errCha
 		return
 	}
 
-	log.Debugf(fmt.Sprintf("sucessfully uploaded policy %s", p.Id()))
+	log.Debugf(fmt.Sprintf("successfully uploaded policy %s", p.Id()))
 
 	errChan <- nil
 }
