@@ -17,7 +17,7 @@ permissions:
 
 jobs:
   golangci:
-    name: lint
+    name: Lint
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -35,6 +35,7 @@ jobs:
 
   build:
     name: Build
+    needs: lint
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
