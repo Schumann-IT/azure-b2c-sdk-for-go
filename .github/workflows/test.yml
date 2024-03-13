@@ -35,7 +35,7 @@ jobs:
 
   build:
     name: Build
-    needs: lint
+    needs: golangci
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
