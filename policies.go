@@ -19,15 +19,22 @@ import (
 // Returns:
 //   - error: an error if any occurred during the process
 func (s *Service) BuildPolicies(en string) error {
-	e, err := s.findConfig(en)
+	e, err := s.FindConfig(en)
 	if err != nil {
 		return err
 	}
 
-	err = s.createGraphClient()
-	if err == nil && s.ti != nil {
-		// override tenant id from tenant information
-		e.Settings["Tenant"] = to.String(s.ti.GetDefaultDomainName())
+	err = s.CreateGraphClientFromEnvironment()
+	if err == nil {
+		log.Debug("trying to read tenant information")
+		ti, err := s.GetTenantInformation(nil)
+		if err != nil {
+			log.Debugf("failed to read tenant information: %s", err)
+		} else {
+			// override tenant id from tenant information
+			log.Info("found tenant information. updating settings.")
+			e.Settings["Tenant"] = to.String(ti.GetDefaultDomainName())
+		}
 	}
 
 	b := policy.NewBuilder()
@@ -55,7 +62,7 @@ func (s *Service) BuildPolicies(en string) error {
 // Returns:
 // - error: an error if any occurred during the process.
 func (s *Service) ListPolicies() error {
-	err := s.createGraphClient()
+	err := s.CreateGraphClientFromEnvironment()
 	if err != nil {
 		return fmt.Errorf("failed to create graph client: %w", err)
 	}
@@ -81,7 +88,7 @@ func (s *Service) ListPolicies() error {
 // Returns:
 //   - error: an error if any occurred during the process
 func (s *Service) DeletePolicies() error {
-	err := s.createGraphClient()
+	err := s.CreateGraphClientFromEnvironment()
 	if err != nil {
 		return fmt.Errorf("failed to create graph client: %w", err)
 	}
@@ -99,12 +106,12 @@ func (s *Service) DeletePolicies() error {
 // Returns:
 //   - error: an error if any occurred during the deployment
 func (s *Service) DeployPolicies(en string) error {
-	e, err := s.findConfig(en)
+	e, err := s.FindConfig(en)
 	if err != nil {
 		return err
 	}
 
-	err = s.createGraphClient()
+	err = s.CreateGraphClientFromEnvironment()
 	if err != nil {
 		return fmt.Errorf("failed to create graph client: %w", err)
 	}

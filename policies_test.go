@@ -25,7 +25,7 @@ func Test_CreateDeployBatch(t *testing.T) {
 	s := testHelperSetupService(t, "config")
 	_ = s.BuildPolicies("test")
 
-	e, _ := s.findConfig("test")
+	e, _ := s.FindConfig("test")
 	_, err := s.batch(e)
 	if err != nil {
 		t.Fatalf("unexpected error: %s", err)
