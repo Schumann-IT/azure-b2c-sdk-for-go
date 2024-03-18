@@ -1,6 +1,6 @@
 # Azure AD B2C SDK for Go
 ![Tests](https://github.com/Schumann-IT/azure-b2c-sdk-for-go/actions/workflows/test.yml/badge.svg)
-![Coverage](https://img.shields.io/badge/Coverage-80.4%25-brightgreen)
+![Coverage](https://img.shields.io/badge/Coverage-73.8%25-brightgreen)
 
 This SDK provides a set of functions to automate Azure B2C
 * Patch Azure AD Application to meet B2C requirements
