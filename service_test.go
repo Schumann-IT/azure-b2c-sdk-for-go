@@ -24,7 +24,7 @@ func testHelperSetupService(t *testing.T, env string) *Service {
 	r, _ := filepath.Abs(testFixturesDir)
 	cp := fmt.Sprintf("%s/%s.yaml", path.Join(testFixturesDir), env)
 	testSourceDir = path.Join(r, testFixturesSourceDir)
-	s, err := NewService(cp, testSourceDir, testBuildTargetDir)
+	s, err := NewServiceFromConfigFile(cp, testSourceDir, testBuildTargetDir)
 	if err != nil {
 		t.Fatalf("unexpected error: %s", err)
 	}
@@ -57,7 +57,7 @@ func Test_NewService(t *testing.T) {
 	}
 
 	s := testHelperSetupService(t, "simple")
-	actual, err := s.findConfig(expected.Name)
+	actual, err := s.FindConfig(expected.Name)
 	if err != nil {
 		t.Fatalf("unexpected error: %s", err)
 	}
@@ -66,13 +66,13 @@ func Test_NewService(t *testing.T) {
 }
 
 func Test_NewServiceFailsFonNonExistingConfig(t *testing.T) {
-	_, actual := NewService("missing", "source", "build")
+	_, actual := NewServiceFromConfigFile("missing", "source", "build")
 	assert.NotNil(t, actual)
 }
 
 func Test_NewServiceWithRelativePaths(t *testing.T) {
 	cp := fmt.Sprintf("%s/%s.yaml", path.Join(testFixturesDir), "config")
-	s, err := NewService(cp, "source", "build")
+	s, err := NewServiceFromConfigFile(cp, "source", "build")
 	if err != nil {
 		t.Fatalf("unexpected error: %s", err)
 	}
@@ -84,7 +84,7 @@ func Test_NewServiceWithRelativePaths(t *testing.T) {
 
 func Test_NewServiceFailsFornNonExistentEnvironment(t *testing.T) {
 	s := testHelperSetupService(t, "simple")
-	_, actual := s.findConfig("missing")
+	_, actual := s.FindConfig("missing")
 
 	assert.NotNil(t, actual)
 }

@@ -128,6 +128,7 @@ func (b *Builder) Write(to string) error {
 	var errs error
 	for f, r := range b.Result() {
 		p := path.Join(to, f)
+		log.Debugf("writing file: %s", p)
 		err := os.MkdirAll(filepath.Dir(p), os.ModePerm)
 		if err != nil {
 			errs = multierror.Append(errs, err)

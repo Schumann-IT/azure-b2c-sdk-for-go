@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/Azure/go-autorest/autorest/to"
 	"github.com/microsoftgraph/msgraph-beta-sdk-go/models"
 )
 
@@ -56,4 +57,12 @@ func (s *ServiceClient) applicationPatchRequest(id string, patch map[string]inte
 	err = s.Authorize(req)
 
 	return req, err
+}
+
+func (s *ServiceClient) CreateApplication(name string) (models.Applicationable, error) {
+	a := models.NewApplication()
+	a.SetDisplayName(to.StringPtr(name))
+	ab := models.Applicationable(a)
+
+	return s.gc.Applications().Post(context.Background(), ab, nil)
 }
