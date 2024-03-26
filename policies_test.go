@@ -1,10 +1,12 @@
 package b2c
 
 import (
+	"fmt"
 	"os"
 	"path"
 	"testing"
 
+	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -43,16 +45,20 @@ func Test_AccDeployPolicies(t *testing.T) {
 	}
 
 	s := testHelperSetupService(t, "config")
+	e, _ := s.FindConfig("test")
+	e.Settings["EncKeyID"] = fmt.Sprintf("B2C_1A_%s", acctest.RandStringFromCharSet(10, "ABCDEFGHIJKLMNOPQRSTXYZabcdefghijklmnopqrstxyz"))
+	e.Settings["SigKeyID"] = fmt.Sprintf("B2C_1A_%s", acctest.RandStringFromCharSet(10, "ABCDEFGHIJKLMNOPQRSTXYZabcdefghijklmnopqrstxyz"))
 	_ = s.BuildPolicies("test")
+
 	err := s.DeletePolicies()
 	if err != nil {
 		t.Fatalf("unexpected error: %s", err)
 	}
-	_, err = s.gs.GenerateKey("B2C_1A_TokenSigningKeyContainer", "sig", "RSA")
+	_, err = s.gs.GenerateKey(e.Settings["EncKeyID"], "sig", "RSA")
 	if err != nil {
 		t.Fatalf("unexpected error: %s", err)
 	}
-	_, err = s.gs.GenerateKey("B2C_1A_TokenEncryptionKeyContainer", "enc", "RSA")
+	_, err = s.gs.GenerateKey(e.Settings["SigKeyID"], "enc", "RSA")
 	if err != nil {
 		t.Fatalf("unexpected error: %s", err)
 	}
@@ -62,8 +68,8 @@ func Test_AccDeployPolicies(t *testing.T) {
 
 	// cleanup
 	_ = s.DeletePolicies()
-	_ = s.gs.DeleteKeySet("B2C_1A_TokenSigningKeyContainer")
-	_ = s.gs.DeleteKeySet("B2C_1A_TokenEncryptionKeyContainer")
+	_ = s.gs.DeleteKeySet(e.Settings["EncKeyID"])
+	_ = s.gs.DeleteKeySet(e.Settings["SigKeyID"])
 }
 
 func Test_AccDeployPoliciesFailsForNonExsistingKeys(t *testing.T) {

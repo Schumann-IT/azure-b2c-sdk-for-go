@@ -40,6 +40,12 @@ jobs:
           B2C_ARM_TENANT_ID: ${{ secrets.B2C_ARM_TENANT_ID }}
           B2C_ARM_CLIENT_ID: ${{ secrets.B2C_ARM_CLIENT_ID }}
           B2C_ARM_CLIENT_SECRET: ${{ secrets.B2C_ARM_CLIENT_SECRET }}
+          ARM_TENANT_ID: ${{ secrets.B2C_ARM_TENANT_ID }}
+          ARM_CLIENT_ID: ${{ secrets.B2C_ARM_CLIENT_ID }}
+          ARM_CLIENT_SECRET: ${{ secrets.B2C_ARM_CLIENT_SECRET }}
+          AZURE_TENANT_ID: ${{ secrets.B2C_ARM_TENANT_ID }}
+          AZURE_CLIENT_ID: ${{ secrets.B2C_ARM_CLIENT_ID }}
+          AZURE_CLIENT_SECRET: ${{ secrets.B2C_ARM_CLIENT_SECRET }}
         run: |
           go test -v ./... -covermode=count -coverprofile=coverage.out
           go tool cover -func=coverage.out -o=coverage.out

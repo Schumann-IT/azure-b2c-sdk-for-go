@@ -13,7 +13,7 @@ import (
 
 // GetApplication retrieves the application with the specified ID from the service.
 func (s *ServiceClient) GetApplication(id string) (models.Applicationable, error) {
-	return s.gc.Applications().ByApplicationId(id).Get(context.Background(), nil)
+	return s.GraphClient.Applications().ByApplicationId(id).Get(context.Background(), nil)
 }
 
 // PatchApplication updates an application with the specified ID using the provided patch.
@@ -64,5 +64,5 @@ func (s *ServiceClient) CreateApplication(name string) (models.Applicationable, 
 	a.SetDisplayName(to.StringPtr(name))
 	ab := models.Applicationable(a)
 
-	return s.gc.Applications().Post(context.Background(), ab, nil)
+	return s.GraphClient.Applications().Post(context.Background(), ab, nil)
 }

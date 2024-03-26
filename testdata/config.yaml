@@ -1,3 +1,5 @@
 - name: test
   settings:
     Tenant: test.onmicrosoft.com
+    EncKeyID: setintest
+    SigKeyID: setintest

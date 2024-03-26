@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <TrustFrameworkPolicy
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xmlns:xsd="http://www.w3.org/2001/XMLSchema"
         xmlns="http://schemas.microsoft.com/online/cpim/schemas/2013/06"
         PolicySchemaVersion="0.3.0.0"
         TenantId="{Settings:Tenant}"
@@ -14,24 +12,25 @@
     </BasePolicy>
 
     <RelyingParty>
-        <DefaultUserJourney ReferenceId="SignUpOrSignIn" />
+        <DefaultUserJourney ReferenceId="SignUpOrSignIn"/>
         <Endpoints>
             <!--points to refresh token journey when app makes refresh token request-->
-            <Endpoint Id="Token" UserJourneyReferenceId="RedeemRefreshToken" />
+            <Endpoint Id="Token" UserJourneyReferenceId="RedeemRefreshToken"/>
         </Endpoints>
         <TechnicalProfile Id="PolicyProfile">
             <DisplayName>PolicyProfile</DisplayName>
-            <Protocol Name="OpenIdConnect" />
+            <Protocol Name="OpenIdConnect"/>
             <OutputClaims>
-                <OutputClaim ClaimTypeReferenceId="displayName" />
-                <OutputClaim ClaimTypeReferenceId="givenName" />
-                <OutputClaim ClaimTypeReferenceId="surname" />
-                <OutputClaim ClaimTypeReferenceId="email" />
+                <OutputClaim ClaimTypeReferenceId="displayName"/>
+                <OutputClaim ClaimTypeReferenceId="givenName"/>
+                <OutputClaim ClaimTypeReferenceId="surname"/>
+                <OutputClaim ClaimTypeReferenceId="email"/>
                 <OutputClaim ClaimTypeReferenceId="objectId" PartnerClaimType="sub"/>
-                <OutputClaim ClaimTypeReferenceId="tenantId" AlwaysUseDefaultValue="true" DefaultValue="{Policy:TenantObjectId}" />
+                <OutputClaim ClaimTypeReferenceId="tenantId" AlwaysUseDefaultValue="true"
+                             DefaultValue="{Policy:TenantObjectId}"/>
 
             </OutputClaims>
-            <SubjectNamingInfo ClaimType="sub" />
+            <SubjectNamingInfo ClaimType="sub"/>
         </TechnicalProfile>
     </RelyingParty>
 </TrustFrameworkPolicy>

@@ -29,7 +29,7 @@ func (s *ServiceClient) CreateServicePrincipal(name string, appId string, resour
 	a := models.NewApplication()
 	a.SetDisplayName(to.StringPtr(name))
 	a.SetRequiredResourceAccess(rras)
-	ares, err := s.gc.Applications().Post(context.Background(), a, nil)
+	ares, err := s.GraphClient.Applications().Post(context.Background(), a, nil)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -39,11 +39,11 @@ func (s *ServiceClient) CreateServicePrincipal(name string, appId string, resour
 	cred.SetDisplayName(to.StringPtr("ieftool"))
 	pb.SetPasswordCredential(cred)
 	ba := applications.ItemAddPasswordPostRequestBodyable(pb)
-	pw, _ := s.gc.Applications().ByApplicationId(to.String(ares.GetId())).AddPassword().Post(context.Background(), ba, nil)
+	pw, _ := s.GraphClient.Applications().ByApplicationId(to.String(ares.GetId())).AddPassword().Post(context.Background(), ba, nil)
 
 	spr := models.NewServicePrincipal()
 	spr.SetAppId(ares.GetAppId())
-	sprres, err := s.gc.ServicePrincipals().Post(context.Background(), spr, nil)
+	sprres, err := s.GraphClient.ServicePrincipals().Post(context.Background(), spr, nil)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -54,7 +54,7 @@ func (s *ServiceClient) CreateServicePrincipal(name string, appId string, resour
 // FindServicePrincipal searches for a service principal with the given name.
 // It returns true if a service principal with the specified name is found, false otherwise.
 func (s *ServiceClient) FindServicePrincipal(name string) bool {
-	sps, err := s.gc.ServicePrincipals().Get(context.Background(), nil)
+	sps, err := s.GraphClient.ServicePrincipals().Get(context.Background(), nil)
 	if err != nil {
 		return false
 	}

@@ -27,28 +27,27 @@ func (s *Service) BuildPolicies(en string) error {
 	err = s.CreateGraphClientFromEnvironment()
 	if err == nil {
 		log.Debug("trying to read tenant information")
-		ti, err := s.GetTenantInformation(nil)
-		if err != nil {
+		if s.TenantInformation == nil {
 			log.Debugf("failed to read tenant information: %s", err)
 		} else {
 			// override tenant id from tenant information
 			log.Info("found tenant information. updating settings.")
-			e.Settings["Tenant"] = to.String(ti.GetDefaultDomainName())
+			e.Settings["Tenant"] = to.String(s.TenantInformation.GetDefaultDomainName())
 		}
 	}
 
 	b := policy.NewBuilder()
-	err = b.Read(s.sd)
+	err = b.Read(*s.sd)
 	if err != nil {
-		return fmt.Errorf("failed to build %s: read from %s failed: %w", en, s.sd, err)
+		return fmt.Errorf("failed to build %s: read from %s failed: %w", en, *s.sd, err)
 	}
 	err = b.Process(e.Settings)
 	if err != nil {
 		return fmt.Errorf("failed to process %s: %w", en, err)
 	}
-	err = b.Write(path.Join(s.td, e.Name))
+	err = b.Write(path.Join(*s.td, e.Name))
 	if err != nil {
-		return fmt.Errorf("failed to write to %s/%s: %w", s.td, e.Name, err)
+		return fmt.Errorf("failed to write to %s/%s: %w", *s.td, e.Name, err)
 	}
 
 	return nil
@@ -145,7 +144,7 @@ func (s *Service) DeployPolicies(en string) error {
 func (s *Service) batch(e *environment.Config) ([][]policy.Policy, error) {
 	t := &policy.Tree{}
 
-	td := path.Join(s.td, e.Name)
+	td := path.Join(*s.td, e.Name)
 	err := t.Read(td)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read from %s, did you run build?: %w", td, err)
