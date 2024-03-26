@@ -13,10 +13,8 @@ import (
 // - IsProduction: Flag indicating if the configuration is for production.
 // - Settings: A map of string key-value pairs representing additional optional settings.
 type Config struct {
-	Name            string            `yaml:"name"`
-	IsProduction    bool              `yaml:"isProduction"`
-	EncryptionKeyId string            `yaml:"encryption_key_id"`
-	Settings        map[string]string `yaml:"settings,omitempty"`
+	Name     string            `yaml:"name"`
+	Settings map[string]string `yaml:"settings,omitempty"`
 }
 
 // NewConfig is a function that creates a new Config object by unmarshaling the provided byte slice of YAML data.

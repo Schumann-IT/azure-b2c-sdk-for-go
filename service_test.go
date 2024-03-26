@@ -88,8 +88,8 @@ func Test_NewServiceWithRelativePaths(t *testing.T) {
 	}
 
 	cwd, _ := os.Getwd()
-	assert.Equal(t, path.Join(cwd, "source"), *s.sd)
-	assert.Equal(t, path.Join(cwd, "build"), *s.td)
+	assert.Equal(t, path.Join(cwd, "source"), s.sd)
+	assert.Equal(t, path.Join(cwd, "build"), s.td)
 }
 
 func Test_NewServiceFailsFornNonExistentEnvironment(t *testing.T) {

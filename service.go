@@ -6,7 +6,6 @@ import (
 	"path/filepath"
 
 	"github.com/Azure/azure-sdk-for-go/sdk/azidentity"
-	"github.com/Azure/go-autorest/autorest/to"
 	"github.com/hashicorp/go-multierror"
 	"github.com/microsoftgraph/msgraph-beta-sdk-go/models"
 	"github.com/schumann-it/azure-b2c-sdk-for-go/environment"
@@ -16,8 +15,8 @@ import (
 // Service represents a service that provides operations related to environments and policies.
 type Service struct {
 	es                []environment.Config
-	sd                *string
-	td                *string
+	sd                string
+	td                string
 	gs                *msgraph.ServiceClient
 	TenantInformation models.TenantInformationable
 }
@@ -53,7 +52,7 @@ func (s *Service) WithSourceDir(dir string) error {
 		return err
 	}
 
-	s.sd = to.StringPtr(d)
+	s.sd = d
 
 	return nil
 }
@@ -71,7 +70,7 @@ func (s *Service) WithTargetDir(dir string) error {
 		return err
 	}
 
-	s.td = to.StringPtr(d)
+	s.td = d
 
 	return nil
 }
