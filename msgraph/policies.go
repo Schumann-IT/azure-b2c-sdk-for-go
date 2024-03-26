@@ -16,7 +16,7 @@ import (
 // It returns a slice of strings, where each string represents a policy ID.
 // If an error occurs while retrieving the policies, it returns nil and an error.
 func (s *ServiceClient) GetPolicies() ([]string, error) {
-	d, err := s.gc.TrustFramework().Policies().Get(context.Background(), nil)
+	d, err := s.GraphClient.TrustFramework().Policies().Get(context.Background(), nil)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get policies: %w", err)
 	}
@@ -43,7 +43,7 @@ func (s *ServiceClient) DeletePolicies() error {
 
 	var errs error
 	for _, id := range ps {
-		err = s.gc.TrustFramework().Policies().ByTrustFrameworkPolicyId(id).Delete(context.Background(), nil)
+		err = s.GraphClient.TrustFramework().Policies().ByTrustFrameworkPolicyId(id).Delete(context.Background(), nil)
 		if err != nil {
 			errs = multierror.Append(errs, fmt.Errorf("failed to delete policy %s: %w", id, err))
 			continue

@@ -8,15 +8,16 @@ import (
 
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/policy"
-	msgraph "github.com/microsoftgraph/msgraph-beta-sdk-go"
+	sdk "github.com/microsoftgraph/msgraph-beta-sdk-go"
 )
 
 // ServiceClient is a client for interacting with a service.
 type ServiceClient struct {
-	gc *msgraph.GraphServiceClient
-	ac azcore.TokenCredential
-	s  []string
-	t  *azcore.AccessToken
+	GraphClient        *sdk.GraphServiceClient
+	OrganizationClient *OrganizationClient
+	ac                 azcore.TokenCredential
+	s                  []string
+	t                  *azcore.AccessToken
 }
 
 // scopes is a variable of type []string that represents the different scopes for Microsoft Graph API requests.
@@ -39,16 +40,23 @@ var scopes = []string{"https://graph.microsoft.com/.default"}
 //	  log.Fatal(err)
 //	}
 func NewClientWithCredential(cred azcore.TokenCredential) (*ServiceClient, error) {
-	g, err := msgraph.NewGraphServiceClientWithCredentials(cred, scopes)
+	g, err := sdk.NewGraphServiceClientWithCredentials(cred, scopes)
 	if err != nil {
 		return nil, err
 	}
 
 	return &ServiceClient{
-		s:  scopes,
-		ac: cred,
-		gc: g,
+		s:           scopes,
+		ac:          cred,
+		GraphClient: g,
 	}, nil
+}
+
+func (s *ServiceClient) CreateOrganizationClient(tid string) {
+	s.OrganizationClient = &OrganizationClient{
+		s:  s,
+		id: tid,
+	}
 }
 
 // Token retrieves an access token from the ServiceClient's TokenCredential.

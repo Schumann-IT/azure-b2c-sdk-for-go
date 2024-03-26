@@ -6,8 +6,6 @@ import (
 	"path/filepath"
 
 	"github.com/Azure/azure-sdk-for-go/sdk/azidentity"
-	"github.com/Azure/go-autorest/autorest/to"
-	"github.com/google/uuid"
 	"github.com/hashicorp/go-multierror"
 	"github.com/microsoftgraph/msgraph-beta-sdk-go/models"
 	"github.com/schumann-it/azure-b2c-sdk-for-go/environment"
@@ -16,41 +14,36 @@ import (
 
 // Service represents a service that provides operations related to environments and policies.
 type Service struct {
-	es  []environment.Config
-	sd  string
-	td  string
-	gs  *msgraph.ServiceClient
-	tid string
+	es                []environment.Config
+	sd                string
+	td                string
+	gs                *msgraph.ServiceClient
+	TenantInformation models.TenantInformationable
 }
 
 // NewServiceFromConfigFile creates a new instance of Service by loading the environment configuration from the provided file path
 // and initializing the necessary variables.
 // It returns a pointer to the Service instance and an error, if any.
-func NewServiceFromConfigFile(cp string, sd string, td string) (*Service, error) {
+func NewServiceFromConfigFile(cp string) (*Service, error) {
 	c, err := environment.NewConfigFromFile(cp)
-	if err != nil {
-		return nil, err
-	}
-
-	asd, err := filepath.Abs(sd)
-	if err != nil {
-		return nil, err
-	}
-
-	tsd, err := filepath.Abs(td)
 	if err != nil {
 		return nil, err
 	}
 
 	return &Service{
 		es: *c,
-		sd: asd,
-		td: tsd,
 	}, nil
 }
 
 func (s *Service) WithEnvironments(environments []environment.Config) {
 	s.es = environments
+}
+
+func (s *Service) MustWithSourceDir(dir string) {
+	err := s.WithSourceDir(dir)
+	if err != nil {
+		log.Fatalf("failed to configure source dir: %s", err.Error())
+	}
 }
 
 func (s *Service) WithSourceDir(dir string) error {
@@ -64,6 +57,13 @@ func (s *Service) WithSourceDir(dir string) error {
 	return nil
 }
 
+func (s *Service) MustWithTargetDir(dir string) {
+	err := s.WithTargetDir(dir)
+	if err != nil {
+		log.Fatalf("failed to configure target dir: %s", err.Error())
+	}
+}
+
 func (s *Service) WithTargetDir(dir string) error {
 	d, err := filepath.Abs(dir)
 	if err != nil {
@@ -71,17 +71,6 @@ func (s *Service) WithTargetDir(dir string) error {
 	}
 
 	s.td = d
-
-	return nil
-}
-
-func (s *Service) WithTenantId(tid string) error {
-	_, err := uuid.Parse(tid)
-	if err != nil {
-		return err
-	}
-
-	s.tid = tid
 
 	return nil
 }
@@ -111,7 +100,6 @@ func (s *Service) CreateGraphClientFromEnvironment() error {
 	if tid == "" {
 		errs = multierror.Append(errs, fmt.Errorf("B2C_ARM_TENANT_ID must be set via environment variable"))
 	}
-	s.tid = tid
 
 	cid := os.Getenv("B2C_ARM_CLIENT_ID")
 	if cid == "" {
@@ -138,15 +126,14 @@ func (s *Service) CreateGraphClientFromEnvironment() error {
 	}
 	s.gs = c
 
-	return nil
-}
-
-func (s *Service) GetTenantInformation(tid *string) (models.TenantInformationable, error) {
-	if tid == nil {
-		tid = &s.tid
+	c.CreateOrganizationClient(tid)
+	i, err := c.OrganizationClient.GetInformation()
+	if err != nil {
+		return err
 	}
+	s.TenantInformation = i
 
-	return s.gs.GetTenantInformation(to.String(tid))
+	return nil
 }
 
 func (s *Service) CreateGraphClientFromDefaultAzureCredential() error {

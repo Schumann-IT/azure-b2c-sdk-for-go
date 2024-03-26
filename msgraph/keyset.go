@@ -26,7 +26,7 @@ import (
 //
 //	The trust framework key set object and an error, if any.
 func (s *ServiceClient) GetKeySet(id string) (models.TrustFrameworkKeySetable, error) {
-	return s.gc.TrustFramework().KeySets().ByTrustFrameworkKeySetId(id).Get(context.Background(), nil)
+	return s.GraphClient.TrustFramework().KeySets().ByTrustFrameworkKeySetId(id).Get(context.Background(), nil)
 }
 
 // GenerateKey generates a new key with the specified settings. It takes in the key set ID, use, and key type as parameters. It creates a request body with the specified use and key.
@@ -40,7 +40,7 @@ func (s *ServiceClient) GenerateKey(keySetNameOrId, use, kty string) (models.Tru
 	r.SetUse(to.StringPtr(use))
 	r.SetKty(to.StringPtr(kty))
 
-	key, err := s.gc.TrustFramework().KeySets().ByTrustFrameworkKeySetId(to.String(ks.GetId())).GenerateKey().Post(context.Background(), r, nil)
+	key, err := s.GraphClient.TrustFramework().KeySets().ByTrustFrameworkKeySetId(to.String(ks.GetId())).GenerateKey().Post(context.Background(), r, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -60,7 +60,7 @@ func (s *ServiceClient) UploadPkcs12(keySetNameOrId, certificate, password strin
 	b := trustframework.NewKeySetsItemUploadPkcs12PostRequestBody()
 	b.SetKey(to.StringPtr(certificate))
 	b.SetPassword(to.StringPtr(password))
-	key, err := s.gc.TrustFramework().KeySets().ByTrustFrameworkKeySetId(to.String(ks.GetId())).UploadPkcs12().Post(context.Background(), b, nil)
+	key, err := s.GraphClient.TrustFramework().KeySets().ByTrustFrameworkKeySetId(to.String(ks.GetId())).UploadPkcs12().Post(context.Background(), b, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -75,7 +75,7 @@ func (s *ServiceClient) UploadPkcs12(keySetNameOrId, certificate, password strin
 // The context.Background() function is used to create a new background context.
 // The function returns an error if the DELETE request fails.
 func (s *ServiceClient) DeleteKeySet(id string) error {
-	return s.gc.TrustFramework().KeySets().ByTrustFrameworkKeySetId(id).Delete(context.Background(), nil)
+	return s.GraphClient.TrustFramework().KeySets().ByTrustFrameworkKeySetId(id).Delete(context.Background(), nil)
 }
 
 // createKeySet creates a new key set with the given name. It creates a TrustFrameworkKeySet
@@ -86,5 +86,5 @@ func (s *ServiceClient) createKeySet(name string) (models.TrustFrameworkKeySetab
 	ks := models.NewTrustFrameworkKeySet()
 	ks.SetId(to.StringPtr(name))
 
-	return s.gc.TrustFramework().KeySets().Post(context.Background(), ks, nil)
+	return s.GraphClient.TrustFramework().KeySets().Post(context.Background(), ks, nil)
 }

@@ -27,13 +27,12 @@ func (s *Service) BuildPolicies(en string) error {
 	err = s.CreateGraphClientFromEnvironment()
 	if err == nil {
 		log.Debug("trying to read tenant information")
-		ti, err := s.GetTenantInformation(nil)
-		if err != nil {
+		if s.TenantInformation == nil {
 			log.Debugf("failed to read tenant information: %s", err)
 		} else {
 			// override tenant id from tenant information
 			log.Info("found tenant information. updating settings.")
-			e.Settings["Tenant"] = to.String(ti.GetDefaultDomainName())
+			e.Settings["Tenant"] = to.String(s.TenantInformation.GetDefaultDomainName())
 		}
 	}
 
