@@ -46,7 +46,18 @@ func (c *OrganizationClient) GetAll() (models.OrganizationCollectionResponseable
 }
 
 func (c *OrganizationClient) Get() (models.Organizationable, error) {
-	return c.s.GraphClient.Organization().ByOrganizationId(c.id).Get(context.Background(), nil)
+	o, err := c.s.GraphClient.Organization().ByOrganizationId(c.id).Get(context.Background(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	o.GetBackingStore().SetInitializationCompleted(true)
+
+	return o, nil
+}
+
+func (c *OrganizationClient) Update(o models.Organizationable) (models.Organizationable, error) {
+	return c.s.GraphClient.Organization().ByOrganizationId(c.id).Patch(context.Background(), o, nil)
 }
 
 func (c *OrganizationClient) NewBranding() models.OrganizationalBrandingable {

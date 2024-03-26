@@ -7,6 +7,7 @@ import (
 	"image"
 	"image/jpeg"
 	"image/png"
+	"math/rand"
 	"net/http"
 	"os"
 	"testing"
@@ -29,6 +30,36 @@ var (
 	//go:embed testdata/squarelogodark.jpg
 	sldJpg []byte
 )
+
+func Test_OrganizationUpdateDisplayName(t *testing.T) {
+	if os.Getenv("TEST_ACC") == "" {
+		t.Skip("Acceptance tests skipped unless env 'TEST_ACC' set")
+		return
+	}
+
+	p := []string{
+		"de",
+		"en",
+		"fr",
+	}
+
+	s := testHelperSetupService(t)
+
+	o, err := s.OrganizationClient.Get()
+	assert.Nil(t, err)
+	assert.NotNil(t, o)
+
+	var c []string
+	for _, v := range p {
+		if v != to.String(o.GetPreferredLanguage()) {
+			c = append(c, v)
+		}
+	}
+	o.SetPreferredLanguage(to.StringPtr(c[rand.Intn(len(c))]))
+
+	_, err = s.OrganizationClient.Update(o)
+	assert.Nil(t, err)
+}
 
 func Test_OrganizationAddBrandingBrandingLocalization(t *testing.T) {
 	// We only run acceptance tests if an env var is set because they're
