@@ -69,7 +69,9 @@ func Test_AccDeployPolicies(t *testing.T) {
 	// cleanup
 	_ = s.DeletePolicies()
 	_ = s.gs.DeleteKeySet(e.Settings["EncKeyID"])
+	_ = s.gs.DeleteKeySet(fmt.Sprintf("%s.bak", e.Settings["EncKeyID"]))
 	_ = s.gs.DeleteKeySet(e.Settings["SigKeyID"])
+	_ = s.gs.DeleteKeySet(fmt.Sprintf("%s.bak", e.Settings["SigKeyID"]))
 }
 
 func Test_AccDeployPoliciesFailsForNonExsistingKeys(t *testing.T) {

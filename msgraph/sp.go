@@ -36,7 +36,7 @@ func (s *ServiceClient) CreateServicePrincipal(name string, appId string, resour
 
 	pb := applications.NewItemAddPasswordPostRequestBody()
 	cred := models.NewPasswordCredential()
-	cred.SetDisplayName(to.StringPtr("ieftool"))
+	cred.SetDisplayName(to.StringPtr("cli"))
 	pb.SetPasswordCredential(cred)
 	ba := applications.ItemAddPasswordPostRequestBodyable(pb)
 	pw, _ := s.GraphClient.Applications().ByApplicationId(to.String(ares.GetId())).AddPassword().Post(context.Background(), ba, nil)
