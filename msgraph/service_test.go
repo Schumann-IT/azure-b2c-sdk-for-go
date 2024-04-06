@@ -2,6 +2,7 @@ package msgraph
 
 import (
 	_ "embed"
+	"os"
 	"testing"
 
 	"github.com/Azure/azure-sdk-for-go/sdk/azidentity"
@@ -16,7 +17,7 @@ func testHelperSetupService(t *testing.T) *ServiceClient {
 	if err != nil {
 		t.Fatalf("unexpected error: %s", err.Error())
 	}
-	s.CreateOrganizationClient("09cd16c8-453f-4a03-b72d-342409d41ed5")
+	s.CreateOrganizationClient(os.Getenv("AZURE_TENANT_ID"))
 
 	return s
 }
