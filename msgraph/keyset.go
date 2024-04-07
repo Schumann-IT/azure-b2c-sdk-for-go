@@ -50,6 +50,26 @@ func (s *ServiceClient) GenerateKey(keySetNameOrId, use, kty string) (models.Tru
 	return ks, err
 }
 
+func (s *ServiceClient) UploadSecret(keySetNameOrId, use, secret string) (models.TrustFrameworkKeySetable, error) {
+	ks, err := s.createKeySet(keySetNameOrId)
+	if err != nil {
+		return nil, err
+	}
+
+	r := trustframework.NewKeySetsItemUploadSecretPostRequestBody()
+	r.SetUse(to.StringPtr(use))
+	r.SetK(to.StringPtr(secret))
+
+	key, err := s.GraphClient.TrustFramework().KeySets().ByTrustFrameworkKeySetId(to.String(ks.GetId())).UploadSecret().Post(context.Background(), r, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	ks.SetKeys([]models.TrustFrameworkKeyable{key})
+
+	return ks, err
+}
+
 // UploadPkcs12 uploads a PKCS12 certificate to the service for a specific trust framework key set identified by `ksId`. It takes the PKCS12 certificate and password as input.
 func (s *ServiceClient) UploadPkcs12(keySetNameOrId, certificate, password string) (models.TrustFrameworkKeySetable, error) {
 	ks, err := s.createKeySet(keySetNameOrId)
