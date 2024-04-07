@@ -18,7 +18,6 @@ func Test_UploadKeySet(t *testing.T) {
 	assert.NotNil(t, ks)
 
 	// cleanup
-	_ = s.DeletePolicies()
 	_ = s.DeleteKeySet(kid)
 	_ = s.DeleteKeySet(fmt.Sprintf("%s.bak", kid))
 }
