@@ -8,6 +8,7 @@ import (
 	"net/http"
 
 	"github.com/Azure/go-autorest/autorest/to"
+	"github.com/microsoftgraph/msgraph-beta-sdk-go/applications"
 	"github.com/microsoftgraph/msgraph-beta-sdk-go/models"
 )
 
@@ -65,4 +66,17 @@ func (s *ServiceClient) CreateApplication(name string) (models.Applicationable, 
 	ab := models.Applicationable(a)
 
 	return s.GraphClient.Applications().Post(context.Background(), ab, nil)
+}
+
+// AddApplicationPasswordCredentials adds password credentials to the application with the specified ID.
+// It takes the ID and name of the password credential as parameters.
+// It returns the added password credential or an error if any.
+func (s *ServiceClient) AddApplicationPasswordCredentials(id, name string) (models.PasswordCredentialable, error) {
+	pb := applications.NewItemAddPasswordPostRequestBody()
+	cred := models.NewPasswordCredential()
+	cred.SetDisplayName(to.StringPtr(name))
+	pb.SetPasswordCredential(cred)
+	ba := applications.ItemAddPasswordPostRequestBodyable(pb)
+
+	return s.GraphClient.Applications().ByApplicationId(id).AddPassword().Post(context.Background(), ba, nil)
 }

@@ -5,7 +5,6 @@ import (
 
 	"github.com/Azure/go-autorest/autorest/to"
 	"github.com/google/uuid"
-	"github.com/microsoftgraph/msgraph-beta-sdk-go/applications"
 	"github.com/microsoftgraph/msgraph-beta-sdk-go/models"
 )
 
@@ -34,12 +33,7 @@ func (s *ServiceClient) CreateServicePrincipal(name string, appId string, resour
 		return nil, nil, err
 	}
 
-	pb := applications.NewItemAddPasswordPostRequestBody()
-	cred := models.NewPasswordCredential()
-	cred.SetDisplayName(to.StringPtr("cli"))
-	pb.SetPasswordCredential(cred)
-	ba := applications.ItemAddPasswordPostRequestBodyable(pb)
-	pw, _ := s.GraphClient.Applications().ByApplicationId(to.String(ares.GetId())).AddPassword().Post(context.Background(), ba, nil)
+	pw, _ := s.AddApplicationPasswordCredentials(to.String(ares.GetId()), "cli")
 
 	spr := models.NewServicePrincipal()
 	spr.SetAppId(ares.GetAppId())
