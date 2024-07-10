@@ -10,7 +10,7 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/hashicorp/go-multierror v1.1.1
 	github.com/hashicorp/terraform-plugin-testing v1.7.0
-	github.com/microsoft/kiota-abstractions-go v1.6.0
+	github.com/microsoft/kiota-abstractions-go v1.6.1
 	github.com/microsoftgraph/msgraph-beta-sdk-go v0.98.0
 	github.com/stretchr/testify v1.9.0
 	gopkg.in/op/go-logging.v1 v1.0.0-20160211212156-b2cb9fa56473
@@ -38,7 +38,7 @@ require (
 	github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646 // indirect
 	github.com/pkg/browser v0.0.0-20240102092130-5ac0b6a4141c // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
-	github.com/std-uritemplate/std-uritemplate/go v0.0.55 // indirect
+	github.com/std-uritemplate/std-uritemplate/go v0.0.57 // indirect
 	go.opentelemetry.io/otel v1.25.0 // indirect
 	go.opentelemetry.io/otel/metric v1.25.0 // indirect
 	go.opentelemetry.io/otel/trace v1.25.0 // indirect
