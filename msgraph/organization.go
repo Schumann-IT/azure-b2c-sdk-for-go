@@ -12,8 +12,10 @@ import (
 )
 
 type OrganizationClient struct {
-	s  *ServiceClient
-	id string
+	s      *ServiceClient
+	id     *string
+	domain *string
+	i      models.TenantInformationable
 }
 
 type ImageType int
@@ -46,7 +48,7 @@ func (c *OrganizationClient) GetAll() (models.OrganizationCollectionResponseable
 }
 
 func (c *OrganizationClient) Get() (models.Organizationable, error) {
-	o, err := c.s.GraphClient.Organization().ByOrganizationId(c.id).Get(context.Background(), nil)
+	o, err := c.s.GraphClient.Organization().ByOrganizationId(*c.id).Get(context.Background(), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -57,7 +59,7 @@ func (c *OrganizationClient) Get() (models.Organizationable, error) {
 }
 
 func (c *OrganizationClient) Update(o models.Organizationable) (models.Organizationable, error) {
-	return c.s.GraphClient.Organization().ByOrganizationId(c.id).Patch(context.Background(), o, nil)
+	return c.s.GraphClient.Organization().ByOrganizationId(*c.id).Patch(context.Background(), o, nil)
 }
 
 func (c *OrganizationClient) NewBranding() models.OrganizationalBrandingable {
@@ -71,7 +73,7 @@ func (c *OrganizationClient) GetDefaultBranding() (models.OrganizationalBranding
 		Headers: h,
 	}
 
-	b, err := c.s.GraphClient.Organization().ByOrganizationId(c.id).Branding().Get(context.Background(), cfg)
+	b, err := c.s.GraphClient.Organization().ByOrganizationId(*c.id).Branding().Get(context.Background(), cfg)
 	if err != nil {
 		return nil, err
 	}
@@ -88,7 +90,7 @@ func (c *OrganizationClient) UpdateDefaultBranding(b models.OrganizationalBrandi
 		Headers: h,
 	}
 
-	return c.s.GraphClient.Organization().ByOrganizationId(c.id).Branding().Patch(context.Background(), b, cfg)
+	return c.s.GraphClient.Organization().ByOrganizationId(*c.id).Branding().Patch(context.Background(), b, cfg)
 }
 
 func (c *OrganizationClient) NewBrandingLocalization(lid string) models.OrganizationalBrandingLocalizationable {
@@ -99,7 +101,7 @@ func (c *OrganizationClient) NewBrandingLocalization(lid string) models.Organiza
 }
 
 func (c *OrganizationClient) GetBrandingLocalization(lid string) (models.OrganizationalBrandingLocalizationable, error) {
-	b, err := c.s.GraphClient.Organization().ByOrganizationId(c.id).Branding().Localizations().ByOrganizationalBrandingLocalizationId(lid).Get(context.Background(), nil)
+	b, err := c.s.GraphClient.Organization().ByOrganizationId(*c.id).Branding().Localizations().ByOrganizationalBrandingLocalizationId(lid).Get(context.Background(), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -110,11 +112,11 @@ func (c *OrganizationClient) GetBrandingLocalization(lid string) (models.Organiz
 }
 
 func (c *OrganizationClient) UpdateBrandingLocalization(b models.OrganizationalBrandingLocalizationable) (models.OrganizationalBrandingLocalizationable, error) {
-	return c.s.GraphClient.Organization().ByOrganizationId(c.id).Branding().Localizations().ByOrganizationalBrandingLocalizationId(to.String(b.GetId())).Patch(context.Background(), b, nil)
+	return c.s.GraphClient.Organization().ByOrganizationId(*c.id).Branding().Localizations().ByOrganizationalBrandingLocalizationId(to.String(b.GetId())).Patch(context.Background(), b, nil)
 }
 
 func (c *OrganizationClient) CreateBrandingLocalization(b models.OrganizationalBrandingLocalizationable) (models.OrganizationalBrandingLocalizationable, error) {
-	return c.s.GraphClient.Organization().ByOrganizationId(c.id).Branding().Localizations().Post(context.Background(), b, nil)
+	return c.s.GraphClient.Organization().ByOrganizationId(*c.id).Branding().Localizations().Post(context.Background(), b, nil)
 }
 
 func (c *OrganizationClient) DeleteBrandingLocalization(lid string) error {
@@ -128,7 +130,7 @@ func (c *OrganizationClient) DeleteBrandingLocalization(lid string) error {
 		return err
 	}
 
-	return c.s.GraphClient.Organization().ByOrganizationId(c.id).Branding().Localizations().ByOrganizationalBrandingLocalizationId(lid).Delete(context.Background(), nil)
+	return c.s.GraphClient.Organization().ByOrganizationId(*c.id).Branding().Localizations().ByOrganizationalBrandingLocalizationId(lid).Delete(context.Background(), nil)
 }
 
 func (c *OrganizationClient) DeleteDefaultBranding() error {
@@ -136,7 +138,7 @@ func (c *OrganizationClient) DeleteDefaultBranding() error {
 }
 
 func (c *OrganizationClient) UploadImage(lid string, it ImageType, body []byte) error {
-	req := c.s.GraphClient.Organization().ByOrganizationId(c.id).Branding().Localizations().ByOrganizationalBrandingLocalizationId(lid)
+	req := c.s.GraphClient.Organization().ByOrganizationId(*c.id).Branding().Localizations().ByOrganizationalBrandingLocalizationId(lid)
 	_, err := it.update(req, body)
 
 	return err
@@ -146,6 +148,29 @@ func (c *OrganizationClient) UploadDefaultImage(it ImageType, body []byte) error
 	return c.UploadImage("0", it, body)
 }
 
+func (c *OrganizationClient) updateInformation() error {
+	var i models.TenantInformationable
+	var err error
+
+	if c.id != nil {
+		i, err = c.s.GraphClient.TenantRelationships().FindTenantInformationByTenantIdWithTenantId(c.id).Get(context.Background(), nil)
+	} else {
+		i, err = c.s.GraphClient.TenantRelationships().FindTenantInformationByDomainNameWithDomainName(c.domain).Get(context.Background(), nil)
+	}
+
+	if err != nil {
+		return err
+	}
+
+	c.i = i
+
+	return nil
+}
+
 func (c *OrganizationClient) GetInformation() (models.TenantInformationable, error) {
-	return c.s.GraphClient.TenantRelationships().FindTenantInformationByTenantIdWithTenantId(&c.id).Get(context.Background(), nil)
+	if c.i == nil {
+		return nil, fmt.Errorf("tenant information not found")
+	}
+
+	return c.i, nil
 }

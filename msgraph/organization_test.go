@@ -31,6 +31,30 @@ var (
 	sldJpg []byte
 )
 
+func Test_OrganizationClientCreate(t *testing.T) {
+	if os.Getenv("TEST_ACC") == "" {
+		t.Skip("Acceptance tests skipped unless env 'TEST_ACC' set")
+		return
+	}
+
+	s, err := NewClientWithCredential(testMustTokenCredential("env"))
+	assert.Nil(t, err)
+
+	s.CreateOrganizationClient(os.Getenv("AZURE_TENANT_ID"))
+	i, err := s.OrganizationClient.GetInformation()
+	assert.Nil(t, err)
+
+	d := i.GetDefaultDomainName()
+
+	s.CreateOrganizationClient(*d)
+	i, err = s.OrganizationClient.GetInformation()
+	assert.Nil(t, err)
+
+	id := i.GetTenantId()
+
+	assert.Equal(t, os.Getenv("AZURE_TENANT_ID"), *id)
+}
+
 func Test_OrganizationUpdateDisplayName(t *testing.T) {
 	if os.Getenv("TEST_ACC") == "" {
 		t.Skip("Acceptance tests skipped unless env 'TEST_ACC' set")
@@ -43,7 +67,7 @@ func Test_OrganizationUpdateDisplayName(t *testing.T) {
 		"fr",
 	}
 
-	s := testHelperSetupService(t)
+	s := testHelperSetupService(t, testMustTokenCredential("env"))
 
 	o, err := s.OrganizationClient.Get()
 	assert.Nil(t, err)
@@ -77,7 +101,7 @@ func Test_OrganizationAddBrandingBrandingLocalization(t *testing.T) {
 		"usernameHintText": fmt.Sprintf("%s Hint", lid),
 	}
 
-	s := testHelperSetupService(t)
+	s := testHelperSetupService(t, testMustTokenCredential("env"))
 
 	b, err := s.OrganizationClient.GetBrandingLocalization(lid)
 	if b == nil {
@@ -127,7 +151,7 @@ func Test_OrganizationUpdateDefaultBrandingBranding(t *testing.T) {
 		"usernameHintText": "DefaultHint",
 	}
 
-	s := testHelperSetupService(t)
+	s := testHelperSetupService(t, testMustTokenCredential("env"))
 
 	b := s.OrganizationClient.NewBranding()
 	b.SetBackgroundColor(to.StringPtr(expected["backgroundColor"]))

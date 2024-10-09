@@ -10,7 +10,7 @@ import (
 )
 
 func Test_UploadKeySet(t *testing.T) {
-	s := testHelperSetupService(t)
+	s := testHelperSetupService(t, testMustTokenCredential("env"))
 	kid := fmt.Sprintf("B2C_1A_%s", acctest.RandStringFromCharSet(10, "ABCDEFGHIJKLMNOPQRSTXYZabcdefghijklmnopqrstxyz"))
 	ks, err := s.UploadSecret(kid, "sig", "secret")
 
