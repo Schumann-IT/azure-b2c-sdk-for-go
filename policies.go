@@ -2,9 +2,9 @@ package b2c
 
 import (
 	"fmt"
+	"os"
 	"path"
 
-	"github.com/Azure/go-autorest/autorest/to"
 	"github.com/hashicorp/go-multierror"
 	"github.com/schumann-it/azure-b2c-sdk-for-go/environment"
 	"github.com/schumann-it/azure-b2c-sdk-for-go/policy"
@@ -24,17 +24,23 @@ func (s *Service) BuildPolicies(en string) error {
 		return err
 	}
 
-	err = s.CreateGraphClientFromEnvironment()
-	if err == nil {
-		log.Debug("trying to read tenant information")
-		if s.TenantInformation == nil {
-			log.Debugf("failed to read tenant information: %s", err)
-		} else {
-			// override tenant id from tenant information
-			log.Info("found tenant information. updating settings.")
-			e.Settings["Tenant"] = to.String(s.TenantInformation.GetDefaultDomainName())
+	tid := os.Getenv("B2C_ARM_TENANT_ID")
+	if tid == "" {
+		if val, ok := e.Settings["Tenant"]; ok {
+			err = os.Setenv("B2C_ARM_TENANT_ID", val)
+			if err != nil {
+				return err
+			}
 		}
 	}
+
+	err = s.CreateGraphClientFromEnvironment()
+	if err != nil {
+		return err
+	}
+
+	dn := s.TenantInformation.GetDefaultDomainName()
+	e.Settings["Tenant"] = *dn
 
 	b := policy.NewBuilder()
 	err = b.Read(s.sd)
@@ -60,11 +66,29 @@ func (s *Service) BuildPolicies(en string) error {
 //
 // Returns:
 // - error: an error if any occurred during the process.
-func (s *Service) ListPolicies() error {
-	err := s.CreateGraphClientFromEnvironment()
+func (s *Service) ListPolicies(en string) error {
+	e, err := s.FindConfig(en)
 	if err != nil {
-		return fmt.Errorf("failed to create graph client: %w", err)
+		return err
 	}
+
+	tid := os.Getenv("B2C_ARM_TENANT_ID")
+	if tid == "" {
+		if val, ok := e.Settings["Tenant"]; ok {
+			err = os.Setenv("B2C_ARM_TENANT_ID", val)
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+	err = s.CreateGraphClientFromEnvironment()
+	if err != nil {
+		return err
+	}
+
+	dn := s.TenantInformation.GetDefaultDomainName()
+	e.Settings["Tenant"] = *dn
 
 	ps, err := s.gs.GetPolicies()
 	if err != nil {
@@ -86,11 +110,29 @@ func (s *Service) ListPolicies() error {
 //
 // Returns:
 //   - error: an error if any occurred during the process
-func (s *Service) DeletePolicies() error {
-	err := s.CreateGraphClientFromEnvironment()
+func (s *Service) DeletePolicies(en string) error {
+	e, err := s.FindConfig(en)
 	if err != nil {
-		return fmt.Errorf("failed to create graph client: %w", err)
+		return err
 	}
+
+	tid := os.Getenv("B2C_ARM_TENANT_ID")
+	if tid == "" {
+		if val, ok := e.Settings["Tenant"]; ok {
+			err = os.Setenv("B2C_ARM_TENANT_ID", val)
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+	err = s.CreateGraphClientFromEnvironment()
+	if err != nil {
+		return err
+	}
+
+	dn := s.TenantInformation.GetDefaultDomainName()
+	e.Settings["Tenant"] = *dn
 
 	return s.gs.DeletePolicies()
 }
@@ -110,10 +152,23 @@ func (s *Service) DeployPolicies(en string) error {
 		return err
 	}
 
+	tid := os.Getenv("B2C_ARM_TENANT_ID")
+	if tid == "" {
+		if val, ok := e.Settings["Tenant"]; ok {
+			err = os.Setenv("B2C_ARM_TENANT_ID", val)
+			if err != nil {
+				return err
+			}
+		}
+	}
+
 	err = s.CreateGraphClientFromEnvironment()
 	if err != nil {
-		return fmt.Errorf("failed to create graph client: %w", err)
+		return err
 	}
+
+	dn := s.TenantInformation.GetDefaultDomainName()
+	e.Settings["Tenant"] = *dn
 
 	bs, err := s.batch(e)
 	if err != nil {

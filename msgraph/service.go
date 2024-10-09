@@ -5,10 +5,12 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strings"
 
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore"
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore/policy"
 	sdk "github.com/microsoftgraph/msgraph-beta-sdk-go"
+	"github.com/microsoftgraph/msgraph-beta-sdk-go/models"
 )
 
 // ServiceClient is a client for interacting with a service.
@@ -53,10 +55,24 @@ func NewClientWithCredential(cred azcore.TokenCredential) (*ServiceClient, error
 }
 
 func (s *ServiceClient) CreateOrganizationClient(tid string) {
-	s.OrganizationClient = &OrganizationClient{
-		s:  s,
-		id: tid,
+	var id *string
+	var domain *string
+
+	if strings.Contains(tid, ".") {
+		id = nil
+		domain = &tid
+	} else {
+		id = &tid
+		domain = nil
 	}
+
+	s.OrganizationClient = &OrganizationClient{
+		s:      s,
+		id:     id,
+		domain: domain,
+	}
+
+	_ = s.OrganizationClient.updateInformation()
 }
 
 // Token retrieves an access token from the ServiceClient's TokenCredential.
@@ -164,5 +180,8 @@ func (s *ServiceClient) DoRequest(req *http.Request) error {
 	}
 
 	return nil
+}
 
+func (s *ServiceClient) Me() (models.Userable, error) {
+	return s.GraphClient.Me().Get(context.Background(), nil)
 }

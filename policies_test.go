@@ -50,7 +50,7 @@ func Test_AccDeployPolicies(t *testing.T) {
 	e.Settings["SigKeyID"] = fmt.Sprintf("B2C_1A_%s", acctest.RandStringFromCharSet(10, "ABCDEFGHIJKLMNOPQRSTXYZabcdefghijklmnopqrstxyz"))
 	_ = s.BuildPolicies("test")
 
-	err := s.DeletePolicies()
+	err := s.DeletePolicies("test")
 	if err != nil {
 		t.Fatalf("unexpected error: %s", err)
 	}
@@ -67,7 +67,7 @@ func Test_AccDeployPolicies(t *testing.T) {
 	assert.Nil(t, err)
 
 	// cleanup
-	_ = s.DeletePolicies()
+	_ = s.DeletePolicies("test")
 	_ = s.gs.DeleteKeySet(e.Settings["EncKeyID"])
 	_ = s.gs.DeleteKeySet(fmt.Sprintf("%s.bak", e.Settings["EncKeyID"]))
 	_ = s.gs.DeleteKeySet(e.Settings["SigKeyID"])
@@ -84,7 +84,7 @@ func Test_AccDeployPoliciesFailsForNonExsistingKeys(t *testing.T) {
 
 	s := testHelperSetupService(t, "config")
 	_ = s.BuildPolicies("test")
-	err := s.DeletePolicies()
+	err := s.DeletePolicies("test")
 	if err != nil {
 		t.Fatalf("unexpected error: %s", err)
 	}
